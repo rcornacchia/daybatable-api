@@ -71,6 +71,21 @@ apiRoutes.post('/authenticate', (req, res) => {
 });
 
 // route middleware to verify a token
+apiRoutes.use((req, res, next) => {
+  const token = req.body.tken || req.query.token || req.headers['x-access-token'];
+
+  if (token) {
+    jwt.verify(token, app.get('secret'), (err, decoded) => {
+      if (err) return res.json({ success: false, message: 'Bad token' });
+      else {
+        req.decoded = decoded;
+        next();
+      }
+    });
+  } else {
+    return res.status(403).send({ success: false, message: 'No token' });
+  }
+});
 
 // route to return all users
 apiRoutes.get('/users', (req, res) => {
