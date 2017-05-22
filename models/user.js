@@ -1,11 +1,54 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const mongoose    = require('mongoose');
+const bcrypt      = require('bcrypt');
+const SALT_FACTOR = 10;
 
-module.exports = mongoose.model('User', new Schema({
-  username: String,
-  password: String,
+const userSchema = mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    index: {
+      unique: true
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true
+  },
   admin: Boolean,
-  email: String,
   firstName: String,
   lastName: String,
-}))
+});
+
+userSchema.pre('save', (next) => {
+  const user = this;
+
+  // only hash password if new or modified
+  if (!user.isModified('password')) return next();
+
+  bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+    if (err) return next(err);
+    
+    // hash password
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) return next(err);
+
+      user.password = hash;
+      next();
+    });
+  });
+});
+
+userSchema.methods.comparePassword = (candidatePassword, cb) => {
+  console.log(candidatePassword);
+  console.log(this.password);
+  bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
+    if (err) return cb( err);
+    cb(null, isMatch);
+  });
+};
+
+module.exports = mongoose.model('User', userSchema)
