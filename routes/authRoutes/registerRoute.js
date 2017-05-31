@@ -51,10 +51,10 @@ registerRoute.use((req, res, next) => {
     admin,
     email,
     firstName,
-    lastName
+    lastName,
+    password
   });
   
-  newUser.password = newUser.generateHash(password);
   newUser.save(err => {
     if (err) throw err;
     console.log(`${username} joined`);
