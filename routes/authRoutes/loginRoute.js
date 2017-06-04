@@ -13,7 +13,7 @@ loginRoute.use((req, res, next) => {
     if (!user) {
       res.json({
         success: false,
-        message: 'That email is not registerd'
+        message: 'That email is not registered'
       });
     } else {
       user.comparePassword(req.body.password, user.password, (err, isMatch) => {
