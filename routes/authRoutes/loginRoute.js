@@ -28,6 +28,7 @@ loginRoute.use((req, res, next) => {
           const token = jwt.sign(user, config.secret, {
             expiresIn: 1440
           });
+          console.log(user);
 
           res.json({
             success: true,
