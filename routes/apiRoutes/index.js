@@ -56,7 +56,8 @@ apiRoutes.post('/debate/create', (req, res) => {
   const debate = new Debate({
     topic,
     votesFor: 0,
-    votesAgainst: 0
+    votesAgainst: 0,
+    currentDebate: false
   });
 
   debate.save(err => {
@@ -69,8 +70,17 @@ apiRoutes.post('/debate/create', (req, res) => {
   res.json({ success: true });
 });
 
-apiRoutes.post('/init', (req, res) => {
+apiRoutes.get('/init', (req, res) => {
+  let payload = {}
+  Debate.findOne({ currentDebate: true }, (err, debate) => {
+    if (err) throw err;
+    else {
+      console.log(debate);
+      payload['debate'] = debate;
 
+      res.json(payload);
+    }
+  });
 });
 
 // route to return all users

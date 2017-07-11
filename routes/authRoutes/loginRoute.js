@@ -6,9 +6,7 @@ const config     = require('../../config');
 
 // route to authenticate
 loginRoute.use((req, res, next) => {
-  User.findOne({
-    username: req.body.username
-  }, (err, user) => {
+  User.findOne({ username: req.body.username }, (err, user) => {
     if (err) throw err;
     if (!user) {
       res.json({
@@ -28,8 +26,6 @@ loginRoute.use((req, res, next) => {
           const token = jwt.sign(user, config.secret, {
             expiresIn: '1000m'
           });
-          console.log(token);
-          // console.log(user);
 
           res.json({
             success: true,
