@@ -4,10 +4,11 @@ const jwt       = require('jsonwebtoken');
 const config    = require('../../config');
 const User      = require('../../models/user');
 const Argument  = require('../../models/argument');
+const Debate    = require('../../models/debate');
 
 // route middleware to verify a token
 apiRoutes.use((req, res, next) => {
-  const data = req.body.Authorization;
+  const data = req.headers.authorization;
   if (!data) {
     return res.status(403).send({ success: false, message: 'No token'});
   } else {
@@ -28,7 +29,7 @@ apiRoutes.use((req, res, next) => {
 });
 
 apiRoutes.post('/post', (req, res) => {
-  const { text, username, userId } = req.body;
+  const { text, username, userId, debateId } = req.body;
 
   const newArgument = new Argument({
     text,
@@ -38,14 +39,42 @@ apiRoutes.post('/post', (req, res) => {
   });
 
   newArgument.save(err => {
-    if (err) throw err;
-    console.log(`new argument posted: ${text}`);
+    if (err) {
+      res.json({ success: false });
+      throw err;
+    }
+    else {
+      res.json({ success: true });
+      console.log(`new argument posted: ${text}`);
+    }
+  });
+});
+
+apiRoutes.post('/debate/create', (req, res) => {
+  const { topic } = req.body;
+  console.log(topic);
+  const debate = new Debate({
+    topic,
+    votesFor: 0,
+    votesAgainst: 0
+  });
+
+  debate.save(err => {
+    if (err) {
+      res.json({ success: false });
+      throw err;
+    }
+    console.log(`debate created with topic: ${topic}`);
   });
   res.json({ success: true });
 });
 
+apiRoutes.post('/init', (req, res) => {
+
+});
+
 // route to return all users
-apiRoutes.post('/users', (req, res) => {
+apiRoutes.get('/users', (req, res) => {
   User.find({}, (err, users) => {
     res.json(users);
   });

@@ -26,9 +26,10 @@ loginRoute.use((req, res, next) => {
           });
         } else {
           const token = jwt.sign(user, config.secret, {
-            expiresIn: 1440
+            expiresIn: '1000m'
           });
-          console.log(user);
+          console.log(token);
+          // console.log(user);
 
           res.json({
             success: true,

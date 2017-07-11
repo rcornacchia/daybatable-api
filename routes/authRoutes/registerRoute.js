@@ -56,10 +56,15 @@ registerRoute.use((req, res, next) => {
   });
   
   newUser.save(err => {
-    if (err) throw err;
-    console.log(`${username} joined`);
-  })
-  res.json({ success: true });
+    if (err) {
+      res.json({ success: false });
+      throw err;
+    }
+    else {
+      console.log(`${username} joined`);
+      res.json({ success: true });
+    }
+  });
 });
 
 module.exports = registerRoute;
