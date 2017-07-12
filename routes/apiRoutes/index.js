@@ -3,7 +3,7 @@ const apiRoutes = express.Router();
 const jwt       = require('jsonwebtoken');
 const config    = require('../../config');
 const User      = require('../../models/user');
-const Argument  = require('../../models/argument');
+const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
 
 // route middleware to verify a token
@@ -28,24 +28,25 @@ apiRoutes.use((req, res, next) => {
   }
 });
 
-apiRoutes.post('/post', (req, res) => {
-  const { text, username, userId, debateId } = req.body;
+apiRoutes.post('/post/create', (req, res) => {
+  const { post, position, username, userId, debateId } = req.body;
 
-  const newArgument = new Argument({
-    text,
+  const newPost = new Post({
+    post,
     username,
+    position,
     userId,
     debateId
   });
 
-  newArgument.save(err => {
+  newPost.save(err => {
     if (err) {
       res.json({ success: false });
       throw err;
     }
     else {
       res.json({ success: true });
-      console.log(`new argument posted: ${text}`);
+      console.log(`new argument posted: ${post}`);
     }
   });
 });
@@ -71,14 +72,18 @@ apiRoutes.post('/debate/create', (req, res) => {
 });
 
 apiRoutes.get('/init', (req, res) => {
-  let payload = {}
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) throw err;
     else {
-      console.log(debate);
+      const debateId = debate._id;
+      let payload = {};
       payload['debate'] = debate;
 
-      res.json(payload);
+      Post.find({ debateId }, (err, posts) => {
+        payload['posts'] = posts;
+        console.log(payload);
+        res.json(payload);
+      });
     }
   });
 });

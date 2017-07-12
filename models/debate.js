@@ -16,7 +16,11 @@ const debateSchema = mongoose.Schema({
   currentDebate: {
     type: Boolean,
     required: true
+  },
+  datePosted: {
+    type: Date, 
+    default: Date.now
   }
-}); 
+});
 
 module.exports = mongoose.model('Debate', debateSchema);

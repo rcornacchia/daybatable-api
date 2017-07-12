@@ -18,6 +18,10 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  dateJoined: {
+    type: Date, 
+    default: Date.now
+  },
   admin: Boolean,
   firstName: String,
   lastName: String,
