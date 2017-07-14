@@ -28,6 +28,23 @@ apiRoutes.use((req, res, next) => {
   }
 });
 
+apiRoutes.get('/init', (req, res) => {
+  Debate.findOne({ currentDebate: true }, (err, debate) => {
+    if (err) throw err;
+    else {
+      const debateId = debate._id;
+      payload = { debate };
+
+      Post.find({ debateId }, (err, posts) => {
+        payload.posts = posts;
+        payload.success = true;
+        console.log(payload);
+        res.json(payload);
+      });
+    }
+  });
+});
+
 apiRoutes.post('/post/create', (req, res) => {
   const { post, position, username, userId, debateId } = req.body;
 
@@ -51,6 +68,17 @@ apiRoutes.post('/post/create', (req, res) => {
   });
 });
 
+apiRoutes.post('/post/upvote', (req, res) => {
+  const { _id, post } = req.body;
+  console.log(`UPVOTED: ${post}`)
+
+  Post.findByIdAndUpdate(_id, { $inc: { votes: 1 } },
+    (err, post) => {
+      (err) ? res.json({ success: false })
+            : res.json({ success: true });
+    });
+});
+
 apiRoutes.post('/debate/create', (req, res) => {
   const { topic } = req.body;
   console.log(topic);
@@ -66,26 +94,9 @@ apiRoutes.post('/debate/create', (req, res) => {
       res.json({ success: false });
       throw err;
     }
-    console.log(`debate created with topic: ${topic}`);
+    console.log(`DEBATE CREATED: ${topic}`);
   });
   res.json({ success: true });
-});
-
-apiRoutes.get('/init', (req, res) => {
-  Debate.findOne({ currentDebate: true }, (err, debate) => {
-    if (err) throw err;
-    else {
-      const debateId = debate._id;
-      let payload = {};
-      payload['debate'] = debate;
-
-      Post.find({ debateId }, (err, posts) => {
-        payload['posts'] = posts;
-        console.log(payload);
-        res.json(payload);
-      });
-    }
-  });
 });
 
 // route to return all users
