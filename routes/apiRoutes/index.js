@@ -6,6 +6,23 @@ const User      = require('../../models/user');
 const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
 
+apiRoutes.get('/init', (req, res) => {
+  Debate.findOne({ currentDebate: true }, (err, debate) => {
+    if (err) throw err;
+    else {
+      const debateId = debate._id;
+      payload = { debate };
+
+      Post.find({ debateId }, (err, posts) => {
+        payload.posts = posts;
+        payload.success = true;
+        console.log(payload);
+        res.json(payload);
+      });
+    }
+  });
+});
+
 // route middleware to verify a token
 apiRoutes.use((req, res, next) => {
   const data = req.headers.authorization;
@@ -26,23 +43,6 @@ apiRoutes.use((req, res, next) => {
       });
     }
   }
-});
-
-apiRoutes.get('/init', (req, res) => {
-  Debate.findOne({ currentDebate: true }, (err, debate) => {
-    if (err) throw err;
-    else {
-      const debateId = debate._id;
-      payload = { debate };
-
-      Post.find({ debateId }, (err, posts) => {
-        payload.posts = posts;
-        payload.success = true;
-        console.log(payload);
-        res.json(payload);
-      });
-    }
-  });
 });
 
 apiRoutes.post('/post/create', (req, res) => {

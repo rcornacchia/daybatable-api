@@ -26,6 +26,7 @@ loginRoute.use((req, res, next) => {
           const token = jwt.sign(user, config.secret, {
             expiresIn: '1000m'
           });
+          console.log(`LOGIN: ${user.username}`);
 
           res.json({
             success: true,

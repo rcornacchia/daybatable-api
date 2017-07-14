@@ -61,7 +61,7 @@ registerRoute.use((req, res, next) => {
       throw err;
     }
     else {
-      console.log(`${username} joined`);
+      console.log(`NEW USER: ${username}`);
       res.json({ success: true });
     }
   });
