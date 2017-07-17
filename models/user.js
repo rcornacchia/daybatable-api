@@ -22,10 +22,6 @@ const userSchema = mongoose.Schema({
     type: Date, 
     default: Date.now
   },
-  postVotes: {
-    type: [{ type: String }],
-    default: []
-  },
   admin: Boolean,
   firstName: String,
   lastName: String,

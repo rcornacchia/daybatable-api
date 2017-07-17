@@ -16,7 +16,6 @@ apiRoutes.get('/init', (req, res) => {
       Post.find({ debateId }, (err, posts) => {
         payload.posts = posts;
         payload.success = true;
-        console.log(payload);
         res.json(payload);
       });
     }
@@ -69,14 +68,20 @@ apiRoutes.post('/post/create', (req, res) => {
 });
 
 apiRoutes.post('/post/upvote', (req, res) => {
-  const { _id, post } = req.body;
-  console.log(`UPVOTED: ${post}`)
+  const { userId, post: { _id, post } } = req.body;
+  if (!_id || !post || !userId) {
+    res.json({ success: false });
+  } else {
+    console.log(`UPVOTE: ${post}`);
 
-  Post.findByIdAndUpdate(_id, { $inc: { votes: 1 } },
-    (err, post) => {
-      (err) ? res.json({ success: false })
-            : res.json({ success: true });
+    Post.findByIdAndUpdate(_id, { 
+      $addToSet: { votes: userId }
+    },
+      (err, post) => {
+        (err) ? res.json({ success: false })
+              : res.json({ success: true });
     });
+  }
 });
 
 apiRoutes.post('/debate/create', (req, res) => {
