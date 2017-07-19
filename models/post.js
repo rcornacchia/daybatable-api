@@ -23,7 +23,7 @@ const postSchema = mongoose.Schema({
   },
   votes: {
     type: [{ type: String }],
-    default: []
+    required: true
   },
   datePosted: {
     type: Date, 

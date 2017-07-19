@@ -52,7 +52,8 @@ apiRoutes.post('/post/create', (req, res) => {
     username,
     position,
     userId,
-    debateId
+    debateId,
+    votes: [userId]
   });
 
   newPost.save(err => {
@@ -86,22 +87,26 @@ apiRoutes.post('/post/upvote', (req, res) => {
 
 apiRoutes.post('/debate/create', (req, res) => {
   const { topic } = req.body;
-  console.log(topic);
   const debate = new Debate({
     topic,
-    votesFor: 0,
-    votesAgainst: 0,
-    currentDebate: false
+    currentDebate: false,
+    votesFor: [],
+    votesAgainst: []
   });
 
   debate.save(err => {
     if (err) {
       res.json({ success: false });
       throw err;
+    } else {
+      res.json({ success: true });
+      console.log(`DEBATE CREATED: ${topic}`);
     }
-    console.log(`DEBATE CREATED: ${topic}`);
   });
-  res.json({ success: true });
+});
+
+apiRoutes.post('/debate/upvote', (req, res) => {
+  console.log(req.body);
 });
 
 // route to return all users
