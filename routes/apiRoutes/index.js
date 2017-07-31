@@ -8,7 +8,7 @@ const Debate    = require('../../models/debate');
 
 apiRoutes.get('/init', (req, res) => {
   Debate.findOne({ currentDebate: true }, (err, debate) => {
-    if (err) throw err;
+    if (err) console.log('>>> ERROR: Cant find debate');
     else {
       const debateId = debate._id;
       payload = { debate };
@@ -45,10 +45,10 @@ apiRoutes.use((req, res, next) => {
 });
 
 apiRoutes.post('/post/create', (req, res) => {
-  const { post, position, username, userId, debateId } = req.body;
+  const { postText, position, username, userId, debateId } = req.body;
 
   const newPost = new Post({
-    post,
+    postText,
     username,
     position,
     userId,
@@ -59,21 +59,21 @@ apiRoutes.post('/post/create', (req, res) => {
   newPost.save(err => {
     if (err) {
       res.json({ success: false });
-      throw err;
+      console.log('>>> ERROR: cant save post');
     }
     else {
       res.json({ success: true });
-      console.log(`new argument posted: ${post}`);
+      console.log(`>>> POST CREATED: ${postText}`);
     }
   });
 });
 
 apiRoutes.post('/post/upvote', (req, res) => {
-  const { userId, post: { _id, post } } = req.body;
-  if (!_id || !post || !userId) {
+  const { userId, post: { _id, postText } } = req.body;
+  if (!_id || !postText || !userId) {
     res.json({ success: false });
   } else {
-    console.log(`UPVOTE: ${post}`);
+    console.log(`>>> UPVOTE: ${postText}`);
 
     Post.findByIdAndUpdate(_id, { 
       $addToSet: { votes: userId }
@@ -85,6 +85,33 @@ apiRoutes.post('/post/upvote', (req, res) => {
   }
 });
 
+apiRoutes.post('/post/unvote', (req, res) => {
+  const { userId, post: {_id, position } } = req.body;
+  if (!_id || !userId) {
+    res.json({ success: false });
+  } else {
+    Post.findById(_id, (err, post) => {
+      if (err) res.json({ success: false });
+      else {
+        if (_id && position && userId) {
+          const votes = post.votes;
+          const index = votes.indexOf(userId);
+          if (index >= 0) votes.splice(index, 1);
+          console.log(post.votes);
+        }
+        post.save(err => {
+          console.log(err);
+          if (err) res.json({ success: false });
+          else {
+            console.log(`>>> UNVOTE: ${post}`);
+            res.json({ success: true });
+          }
+        });
+      }
+    })
+  }
+})
+
 apiRoutes.post('/debate/create', (req, res) => {
   const { topic } = req.body;
   const debate = new Debate({
@@ -95,10 +122,8 @@ apiRoutes.post('/debate/create', (req, res) => {
   });
 
   debate.save(err => {
-    if (err) {
-      res.json({ success: false });
-      throw err;
-    } else {
+    if (err) res.json({ success: false });
+    else {
       res.json({ success: true });
       console.log(`DEBATE CREATED: ${topic}`);
     }
@@ -106,7 +131,38 @@ apiRoutes.post('/debate/create', (req, res) => {
 });
 
 apiRoutes.post('/debate/upvote', (req, res) => {
-  console.log(req.body);
+  const { userId, debateId, position } = req.body;
+  Debate.findById(debateId, (err, debate) => {
+    if (err) res.json({ success: false });
+    else {
+      const votesFor = debate.votesFor;
+      const votesAgainst = debate.votesAgainst;
+      let index;
+      console.log(`DEBATE VOTE: user ${userId} voted ${position} ${debateId}`)
+
+      if (position === 'for') {
+        // add to votesFor and remove from votesAgainst
+        index = votesFor.findIndex(id => id === userId);
+        (index < 0) ? votesFor.push(userId)
+                    : votesFor.splice(index, 1);
+        // check to see if userId in votesAgainst
+        index = votesAgainst.findIndex(id => id === userId);
+        if (index >= 0) votesAgainst.splice(index, 1);
+      } else {
+        // add to votesAgainst and remove from votesFor
+        index = votesAgainst.findIndex(id => id === userId);
+        (index < 0) ? votesAgainst.push(userId)
+                    : votesAgainst.splice(index, 1);
+        // check to see if userId in votesFor
+        index = votesFor.findIndex(id => id === userId);
+        if (index >= 0) votesFor.splice(index, 1);
+      }
+      debate.save(err => {
+        if (err) res.json({ success: false });
+        else res.json({ success: true });
+      });
+    }
+  });
 });
 
 // route to return all users

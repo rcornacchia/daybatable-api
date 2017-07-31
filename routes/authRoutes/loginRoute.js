@@ -7,7 +7,7 @@ const config     = require('../../config');
 // route to authenticate
 loginRoute.use((req, res, next) => {
   User.findOne({ username: req.body.username }, (err, user) => {
-    if (err) throw err;
+    if (err) console.log('ERROR logging in');
     if (!user) {
       res.json({
         success: false,
@@ -15,7 +15,7 @@ loginRoute.use((req, res, next) => {
       });
     } else {
       user.comparePassword(req.body.password, user.password, (err, isMatch) => {
-        if (err) throw err;
+        if (err) console.log('incorrect password combo');
 
         if (!isMatch) {
           res.json({
@@ -24,7 +24,7 @@ loginRoute.use((req, res, next) => {
           });
         } else {
           const token = jwt.sign(user, config.secret, {
-            expiresIn: '1000m'
+            expiresIn: '10 years'
           });
           console.log(`LOGIN: ${user.username}`);
 

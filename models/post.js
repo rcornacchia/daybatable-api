@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = mongoose.Schema({
-  post: {
+  postText: {
     type: String,
     required: true
   },
@@ -23,11 +23,11 @@ const postSchema = mongoose.Schema({
   },
   votes: {
     type: [{ type: String }],
-    required: true
   },
   datePosted: {
     type: Date, 
-    default: Date.now
+    default: Date.now,
+    required: true
   }
 });
 
