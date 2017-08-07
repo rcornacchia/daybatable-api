@@ -10,7 +10,7 @@ apiRoutes.get('/init', (req, res) => {
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) console.log('>>> ERROR: Cant find debate');
     else {
-      const debateId = debate._id;
+      const debateId = debate && debate._id;
       payload = { debate };
 
       Post.find({ debateId }, (err, posts) => {
@@ -60,6 +60,7 @@ apiRoutes.post('/post/create', (req, res) => {
     if (err) {
       res.json({ success: false });
       console.log('>>> ERROR: cant save post');
+      console.log(err);
     }
     else {
       res.json({ success: true });
@@ -97,13 +98,11 @@ apiRoutes.post('/post/unvote', (req, res) => {
           const votes = post.votes;
           const index = votes.indexOf(userId);
           if (index >= 0) votes.splice(index, 1);
-          console.log(post.votes);
         }
         post.save(err => {
-          console.log(err);
           if (err) res.json({ success: false });
           else {
-            console.log(`>>> UNVOTE: ${post}`);
+            console.log(`>>> UNVOTE: ${post.postText}`);
             res.json({ success: true });
           }
         });
