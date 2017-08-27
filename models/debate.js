@@ -11,6 +11,8 @@ const debateSchema = mongoose.Schema({
   votesAgainst: {
     type: [{ type: String }]
   },
+  forPosition: { type: String },
+  againstPosition: { type: String },
   currentDebate: {
     type: Boolean,
     required: true

@@ -7,6 +7,23 @@ const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
 
 apiRoutes.get('/init', (req, res) => {
+  const debate = new Debate({
+    topic: 'What came first, the chicken or the egg?',
+    forPosition: 'Chicken',
+    againstPosition: 'Egg',
+    currentDebate: true,
+    votesFor: [],
+    votesAgainst: []
+  });
+
+  debate.save(err => {
+    // if (err) res.json({ success: false });
+    // else {
+      // res.json({ success: true });
+      console.log(`DEBATE CREATED: ${topic}`);
+    // }
+  });
+
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) console.log('>>> ERROR: Cant find debate');
     else {
@@ -19,6 +36,28 @@ apiRoutes.get('/init', (req, res) => {
         res.json(payload);
       });
     }
+  });
+});
+
+apiRoutes.post('/validate', (req, res) => {
+  const { username, email } = req.body;
+
+  let response = {
+    usernameTaken: false,
+    emailTaken: false
+  };
+
+  User.findOne({ username }, (err, user) => {
+    if (user) {
+      response.usernameTaken = true;
+    }
+
+    User.findOne({ email }, (err, user) => {
+      if (user) {
+        response.emailTaken = true;
+      }
+      res.json(response);
+    });
   });
 });
 
@@ -112,9 +151,11 @@ apiRoutes.post('/post/unvote', (req, res) => {
 })
 
 apiRoutes.post('/debate/create', (req, res) => {
-  const { topic } = req.body;
+  const { topic, forPosition, againstPosition } = req.body;
   const debate = new Debate({
     topic,
+    forPosition,
+    againstPosition,
     currentDebate: false,
     votesFor: [],
     votesAgainst: []

@@ -58,7 +58,7 @@ registerRoute.use((req, res, next) => {
   newUser.save(err => {
     if (err) {
       res.json({ success: false });
-      throw err;
+      console.log('Failed to save new user');
     }
     else {
       console.log(`NEW USER: ${username}`);
