@@ -19,6 +19,10 @@ app.use(bodyParser.json());                       // enable body parsing
 app.use(bodyParser.urlencoded({ extended: true}))
 app.use(morgan('dev'));                           // log requests to console
 
+app.get('/', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+});
+
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.listen(port);
