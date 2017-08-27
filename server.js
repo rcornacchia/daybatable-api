@@ -8,7 +8,7 @@ const config     = require('./config');
 const authRoutes = require('./routes/authRoutes');
 const apiRoutes  = require('./routes/apiRoutes');
 const app        = express();
-const port       = process.env.PORT || 3000;
+const port       = process.env.PORT || 8080;
 
 mongoose.Promise = bluebird;
 mongoose.connect(config.database);                // connect to database
