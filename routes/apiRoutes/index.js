@@ -7,23 +7,6 @@ const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
 
 apiRoutes.get('/init', (req, res) => {
-  const debate = new Debate({
-    topic: 'What came first, the chicken or the egg?',
-    forPosition: 'Chicken',
-    againstPosition: 'Egg',
-    currentDebate: true,
-    votesFor: [],
-    votesAgainst: []
-  });
-
-  debate.save(err => {
-    // if (err) res.json({ success: false });
-    // else {
-      // res.json({ success: true });
-      console.log(`DEBATE CREATED: ${topic}`);
-    // }
-  });
-
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) console.log('>>> ERROR: Cant find debate');
     else {
