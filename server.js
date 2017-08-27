@@ -20,9 +20,7 @@ app.use(bodyParser.json());                       // enable body parsing
 app.use(bodyParser.urlencoded({ extended: true}))
 app.use(morgan('dev'));                           // log requests to console
 
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-});
+application.use("/public", express.static(path.join(__dirname, 'public')));
 
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
