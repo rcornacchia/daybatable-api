@@ -12,13 +12,13 @@ const app        = express();
 const port       = process.env.PORT || 8080;
 
 mongoose.Promise = bluebird;
-mongoose.connect(config.database);                // connect to database
+mongoose.connect(config.database);                 // connect to database
 
-app.set('secret', config.secret);                 // set secret variable
+app.set('secret', config.secret);                  // set secret variable
 app.use(cors());
-app.use(bodyParser.json());                       // enable body parsing
-app.use(bodyParser.urlencoded({ extended: true}))
-app.use(morgan('dev'));                           // log requests to console
+app.use(bodyParser.json());                        // enable body parsing
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(morgan('dev'));                            // log requests to console
 
 app.use("/", express.static(path.join(__dirname, 'ui/public')));
 
