@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server",
-    "local": "PORT=3000 nodemon server.js"    
+    "local": "PORT=3000 nodemon server.js"
   },
   "author": "",
   "license": "ISC",
