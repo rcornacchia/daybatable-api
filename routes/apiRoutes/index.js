@@ -10,6 +10,7 @@ apiRoutes.get('/init', (req, res) => {
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) console.log('>>> ERROR: Cant find debate');
     else {
+      console.log(debate);
       const debateId = debate && debate._id;
       payload = { debate };
 
@@ -134,12 +135,12 @@ apiRoutes.post('/post/unvote', (req, res) => {
 })
 
 apiRoutes.post('/debate/create', (req, res) => {
-  const { topic, forPosition, againstPosition } = req.body;
+  const { topic, forPosition, againstPosition, currentDebate } = req.body;
   const debate = new Debate({
     topic,
     forPosition,
     againstPosition,
-    currentDebate: false,
+    currentDebate: currentDebate || false,
     votesFor: [],
     votesAgainst: []
   });
