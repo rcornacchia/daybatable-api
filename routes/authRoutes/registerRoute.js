@@ -1,5 +1,7 @@
-const express    = require('express');
-const User       = require('../../models/user');
+const express       = require('express');
+const User          = require('../../models/user');
+const jwt           = require('jsonwebtoken');
+const config        = require('../../config');
 const registerRoute = express.Router();
 
 registerRoute.use((req, res, next) => {
@@ -62,7 +64,15 @@ registerRoute.use((req, res, next) => {
     }
     else {
       console.log(`NEW USER: ${username}`);
-      res.json({ success: true });
+      const token = jwt.sign(newUser, config.secret, {
+        expiresIn: '10 years'
+      });
+
+      res.json({
+        success: true, 
+        token,
+        user: newUser
+      });
     }
   });
 });

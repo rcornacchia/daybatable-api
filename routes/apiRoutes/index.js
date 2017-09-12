@@ -75,7 +75,7 @@ apiRoutes.post('/post/create', (req, res) => {
     position,
     userId,
     debateId,
-    votes: [userId]
+    votes: []
   });
 
   newPost.save(err => {
