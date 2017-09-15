@@ -20,9 +20,11 @@ app.use(bodyParser.json());                        // enable body parsing
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));                            // log requests to console
 
-app.use("/", express.static(path.join(__dirname, 'ui/public')));
 
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
+app.use('/public', express.static(path.join(__dirname, 'ui/public')));
+
+app.use('*', express.static(path.join(__dirname, 'ui/public')));
 app.listen(port);
 console.log(`Server started on port: ${port}`);
