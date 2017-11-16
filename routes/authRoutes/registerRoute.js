@@ -63,8 +63,6 @@ registerRoute.use((req, res, next) => {
       console.log('Failed to save new user');
     }
     else {
-      console.log(token);
-      console.log(newUser);
       console.log(`NEW USER: ${username}`);
       const token = jwt.sign(newUser, config.secret, {
         expiresIn: '10 years'
