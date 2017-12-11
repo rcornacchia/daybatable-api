@@ -18,7 +18,7 @@ app.set('secret', config.secret);                  // set secret variable
 app.use(cors());
 app.use(morgan('dev'));                            // log requests to console
 app.use(bodyParser.json());                        // enable body parsing
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
