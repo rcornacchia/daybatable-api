@@ -1,6 +1,7 @@
 const express   = require('express');
 const apiRoutes = express.Router();
 const jwt       = require('jsonwebtoken');
+const mongoose  = require('mongoose');
 const config    = require('../../config');
 const User      = require('../../models/user');
 const Post      = require('../../models/post');
@@ -68,12 +69,13 @@ apiRoutes.use((req, res, next) => {
 });
 
 apiRoutes.post('/post/create', (req, res) => {
-  const { postText, position, username, userId, debateId } = req.body;
+  const { postText, position, positionName, username, userId, debateId } = req.body;
 
   const newPost = new Post({
     postText,
     username,
     position,
+    positionName,
     userId,
     debateId,
     votes: []
@@ -86,7 +88,10 @@ apiRoutes.post('/post/create', (req, res) => {
       console.log(err);
     }
     else {
-      res.json({ success: true });
+      res.json({
+        success: true,
+        post: newPost
+      });
       console.log(`>>> POST CREATED: ${postText}`);
     }
   });
@@ -98,11 +103,11 @@ apiRoutes.post('/post/upvote', (req, res) => {
     res.json({ success: false });
   } else {
     console.log(`>>> UPVOTE: ${postText}`);
-
     Post.findByIdAndUpdate(_id, { 
       $addToSet: { votes: userId }
     },
       (err, post) => {
+        console.log(err);
         (err) ? res.json({ success: false })
               : res.json({ success: true });
     });
@@ -135,11 +140,20 @@ apiRoutes.post('/post/unvote', (req, res) => {
 })
 
 apiRoutes.post('/debate/create', (req, res) => {
-  const { topic, forPosition, againstPosition, currentDebate } = req.body;
+  const { topic, userId, forPosition, againstPosition, firstPosition, secondPosition, currentDebate } = req.body;
+
+  if (!topic || !userId || !(forPosition || firstPosition) || !(againstPosition || secondPosition)) {
+    res.json({
+      success: false,
+      message: 'Insufficient data to create debate.'
+    });
+  }
+  
   const debate = new Debate({
     topic,
-    forPosition,
-    againstPosition,
+    userId,
+    forPosition: forPosition || firstPosition,
+    againstPosition: againstPosition || secondPosition,
     currentDebate: currentDebate || false,
     votesFor: [],
     votesAgainst: []
@@ -161,12 +175,11 @@ apiRoutes.post('/debate/upvote', (req, res) => {
     else {
       const votesFor = debate.votesFor;
       const votesAgainst = debate.votesAgainst;
-      let index;
       console.log(`DEBATE VOTE: user ${userId} voted ${position} ${debateId}`)
-
+      
       if (position === 'for') {
         // add to votesFor and remove from votesAgainst
-        index = votesFor.findIndex(id => id === userId);
+        let index = votesFor.findIndex(id => id === userId);
         (index < 0) ? votesFor.push(userId)
                     : votesFor.splice(index, 1);
         // check to see if userId in votesAgainst
@@ -174,7 +187,7 @@ apiRoutes.post('/debate/upvote', (req, res) => {
         if (index >= 0) votesAgainst.splice(index, 1);
       } else {
         // add to votesAgainst and remove from votesFor
-        index = votesAgainst.findIndex(id => id === userId);
+        let index = votesAgainst.findIndex(id => id === userId);
         (index < 0) ? votesAgainst.push(userId)
                     : votesAgainst.splice(index, 1);
         // check to see if userId in votesFor

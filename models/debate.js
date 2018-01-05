@@ -5,12 +5,12 @@ const debateSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  votesFor: {
-    type: [{ type: String }]
+  userId: {
+    type: String,
+    required: true
   },
-  votesAgainst: {
-    type: [{ type: String }]
-  },
+  votesFor: { type: [{ type: String }] },
+  votesAgainst: { type: [{ type: String }] },
   forPosition: { type: String },
   againstPosition: { type: String },
   currentDebate: {
