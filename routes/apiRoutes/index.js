@@ -1,3 +1,4 @@
+const socket    = require('../../server');
 const express   = require('express');
 const apiRoutes = express.Router();
 const jwt       = require('jsonwebtoken');
@@ -81,6 +82,8 @@ apiRoutes.post('/post/create', (req, res) => {
     votes: []
   });
 
+  socket.broadcast('post_created');
+
   newPost.save(err => {
     if (err) {
       res.json({ success: false });
@@ -107,7 +110,6 @@ apiRoutes.post('/post/upvote', (req, res) => {
       $addToSet: { votes: userId }
     },
       (err, post) => {
-        console.log(err);
         (err) ? res.json({ success: false })
               : res.json({ success: true });
     });

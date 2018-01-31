@@ -5,11 +5,22 @@ const mongoose   = require('mongoose');
 const morgan     = require('morgan');
 const bluebird   = require('bluebird');
 const path       = require('path');
+const app        = express();
+const http       = require('http').Server(app);
+const io         = require('socket.io')(http);
 const config     = require('./config');
 const authRoutes = require('./routes/authRoutes');
 const apiRoutes  = require('./routes/apiRoutes');
-const app        = express();
 const port       = process.env.PORT || 8080;
+
+io.on('connection', socket => {
+  console.log('a user connected');
+  socket.on('test', () => console.log('test'));
+  socket.on('post_added', post => console.log(post));
+  socket.on('disconnect', () => {
+    console.log('a user disconnected');
+  });
+});
 
 mongoose.Promise = bluebird;
 mongoose.connect(config.database);                 // connect to database
@@ -27,3 +38,5 @@ app.use('*', express.static(path.join(__dirname, '../ui/public')));
 
 app.listen(port);
 console.log(`Server started on port: ${port}`);
+
+http.listen(3000, () => console.log('socket.io server started on port 3000'));
