@@ -170,6 +170,32 @@ apiRoutes.post('/debate/create', (req, res) => {
   });
 });
 
+// route to vote for a debate as the next daily debate
+apiRoutes.post('/debate/vote', (req, res) => {
+  const { userId, debateId } = req.body;
+  Debate.findById(debateId, (err, debate) => {
+    if (err) res.json({ success: false });
+    else {
+      const votes = debate.votes;
+      const index = votes.findIndex(id => id == userId);
+      (index < 0) ? votes.push(userId)
+                  : votes.splice(index, 1);
+      debate.save(err => {
+        if (err) res.json({ success: false });
+        else res.json({ success: true });
+      });
+    }
+  });
+});
+
+// route to return all upcoming debates
+apiRoutes.get('/debate/upcoming', (req, res) => {
+  Debate.find({ upcoming: true }, (err, debates) => {
+    err ? res.json({ success: false }) : res.json({ success: true, debates });
+  });
+});
+
+// route to upvote or downvote a debate position
 apiRoutes.post('/debate/upvote', (req, res) => {
   const { userId, debateId, position } = req.body;
   Debate.findById(debateId, (err, debate) => {
@@ -201,13 +227,6 @@ apiRoutes.post('/debate/upvote', (req, res) => {
         else res.json({ success: true });
       });
     }
-  });
-});
-
-// route to return all users
-apiRoutes.get('/users', (req, res) => {
-  User.find({}, (err, users) => {
-    res.json(users);
   });
 });
 
