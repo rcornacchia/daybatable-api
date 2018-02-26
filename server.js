@@ -19,7 +19,9 @@ io.on('connection', socket => {
   socket.on('post_added', post => console.log(post));
   socket.on('disconnect', () => {
     console.log('a user disconnected');
+    console.log(`NUM_CLIENTS: ${io.engine.clientsCount}`);
   });
+  console.log(`NUM_CLIENTS: ${io.engine.clientsCount}`);
 });
 
 mongoose.Promise = bluebird;
@@ -40,3 +42,5 @@ app.listen(port);
 console.log(`Server started on port: ${port}`);
 
 http.listen(3000, () => console.log('socket.io server started on port 3000'));
+
+module.exports = io;

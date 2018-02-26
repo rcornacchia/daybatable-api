@@ -7,12 +7,14 @@ const config    = require('../../config');
 const User      = require('../../models/user');
 const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
+const io        = require('../../server');
+
+console.log(io);
 
 apiRoutes.get('/init', (req, res) => {
   Debate.findOne({ currentDebate: true }, (err, debate) => {
     if (err) console.log('>>> ERROR: Cant find debate');
     else {
-      console.log(debate);
       const debateId = debate && debate._id;
       payload = { debate };
 
@@ -82,8 +84,6 @@ apiRoutes.post('/post/create', (req, res) => {
     votes: []
   });
 
-  socket.broadcast('post_created');
-
   newPost.save(err => {
     if (err) {
       res.json({ success: false });
@@ -108,8 +108,7 @@ apiRoutes.post('/post/upvote', (req, res) => {
     console.log(`>>> UPVOTE: ${postText}`);
     Post.findByIdAndUpdate(_id, { 
       $addToSet: { votes: userId }
-    },
-      (err, post) => {
+    }, (err, post) => {
         (err) ? res.json({ success: false })
               : res.json({ success: true });
     });
@@ -181,7 +180,7 @@ apiRoutes.post('/debate/vote', (req, res) => {
       (index < 0) ? votes.push(userId)
                   : votes.splice(index, 1);
       debate.save(err => {
-        if (err) res.json({ success: false });
+        if (err) res.json({ success: false, err });
         else res.json({ success: true });
       });
     }
@@ -223,7 +222,7 @@ apiRoutes.post('/debate/upvote', (req, res) => {
         if (index >= 0) votesFor.splice(index, 1);
       }
       debate.save(err => {
-        if (err) res.json({ success: false });
+        if (err) res.json({ success: false, err });
         else res.json({ success: true });
       });
     }
