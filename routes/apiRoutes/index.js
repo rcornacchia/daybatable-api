@@ -7,9 +7,21 @@ const config    = require('../../config');
 const User      = require('../../models/user');
 const Post      = require('../../models/post');
 const Debate    = require('../../models/debate');
-const io        = require('../../server');
+const app        = express();
+const http       = require('http').Server(app);
+const io         = require('socket.io')(http);
 
-console.log(io);
+http.listen(3000, () => console.log('socket.io server started on port 3000'));
+
+io.on('connection', socket => {
+  console.log('a user connected');
+  socket.on('test', () => console.log('test'));
+  socket.on('disconnect', () => {
+    console.log('a user disconnected');
+    console.log(`NUM_CLIENTS: ${io.engine.clientsCount}`);
+  });
+  console.log(`NUM_CLIENTS: ${io.engine.clientsCount}`);
+});
 
 apiRoutes.get('/init', (req, res) => {
   Debate.findOne({ currentDebate: true }, (err, debate) => {
@@ -120,25 +132,14 @@ apiRoutes.post('/post/unvote', (req, res) => {
   if (!_id || !userId) {
     res.json({ success: false });
   } else {
-    Post.findById(_id, (err, post) => {
-      if (err) res.json({ success: false });
-      else {
-        if (_id && position && userId) {
-          const votes = post.votes;
-          const index = votes.indexOf(userId);
-          if (index >= 0) votes.splice(index, 1);
-        }
-        post.save(err => {
-          if (err) res.json({ success: false });
-          else {
-            console.log(`>>> UNVOTE: ${post.postText}`);
-            res.json({ success: true });
-          }
-        });
+    Post.findByIdAndUpdate(_id, {
+        $pull: { votes: userId }
+      }, (err) => {
+        (err) ? res.json({ success: false, err }) : res.json({ success: true });
       }
-    })
+    );
   }
-})
+});
 
 apiRoutes.post('/debate/create', (req, res) => {
   const { topic, userId, forPosition, againstPosition, firstPosition, secondPosition, currentDebate } = req.body;
