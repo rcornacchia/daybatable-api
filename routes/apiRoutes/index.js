@@ -195,39 +195,50 @@ apiRoutes.get('/debate/upcoming', (req, res) => {
   });
 });
 
-// route to upvote or downvote a debate position
+// route to upvote a debate position
 apiRoutes.post('/debate/upvote', (req, res) => {
   const { userId, debateId, position } = req.body;
-  Debate.findById(debateId, (err, debate) => {
-    if (err) res.json({ success: false });
-    else {
-      const votesFor = debate.votesFor;
-      const votesAgainst = debate.votesAgainst;
-      console.log(`DEBATE VOTE: user ${userId} voted ${position} ${debateId}`)
-      
-      if (position === 'for') {
-        // add to votesFor and remove from votesAgainst
-        let index = votesFor.findIndex(id => id === userId);
-        (index < 0) ? votesFor.push(userId)
-                    : votesFor.splice(index, 1);
-        // check to see if userId in votesAgainst
-        index = votesAgainst.findIndex(id => id === userId);
-        if (index >= 0) votesAgainst.splice(index, 1);
-      } else {
-        // add to votesAgainst and remove from votesFor
-        let index = votesAgainst.findIndex(id => id === userId);
-        (index < 0) ? votesAgainst.push(userId)
-                    : votesAgainst.splice(index, 1);
-        // check to see if userId in votesFor
-        index = votesFor.findIndex(id => id === userId);
-        if (index >= 0) votesFor.splice(index, 1);
-      }
-      debate.save(err => {
-        if (err) res.json({ success: false, err });
-        else res.json({ success: true });
-      });
-    }
-  });
+  if (position === 'for') {
+      Debate.findByIdAndUpdate(debateId, {
+      $addToSet: { votesFor: userId },
+      $pull: { votesAgainst: userId }
+    }, (err, debate) => {
+        console.log(debate);
+        (err) ? res.json({ success: false })
+              : res.json({ success: true });
+    });
+  } else {
+    Debate.findByIdAndUpdate(debateId, {
+      $addToSet: { votesAgainst: userId },
+      $pull: { votesFor: userId }
+    }, (err, debate) => {
+        console.log(debate);
+        (err) ? res.json({ success: false })
+              : res.json({ success: true });
+    });
+  }
+});
+
+// route to downvote a debate position
+apiRoutes.post('/debate/downvote', (req, res) => {
+  const { userId, debateId, position } = req.body;
+  if (position === 'for') {
+    Debate.findByIdAndUpdate(debateId, {
+      $pull: { votesFor: userId }
+    }, (err, debate) => {
+        console.log(debate);
+        (err) ? res.json({ success: false })
+              : res.json({ success: true });
+    });
+  } else {
+    Debate.findByIdAndUpdate(debateId, {
+      $pull: { votesAgainst: userId }
+    }, (err, debate) => {
+        console.log(debate);
+        (err) ? res.json({ success: false })
+              : res.json({ success: true });
+    });
+  }
 });
 
 module.exports = apiRoutes;
